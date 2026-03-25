@@ -1,0 +1,18 @@
+{
+  "editor.formatOnSave": true, // 保存时自动格式化
+  "editor.defaultFormatter": "esbenp.prettier-vscode", // 默认格式化器
+  "eslint.validate": ["javascript", "typescript", "jsx"], // 检测语言
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "[javascript]": {
+    "editor.formatOnSave": false // 由 ESLint 接管格式化
+  },
+  "files.autoSave": "onWindowChange",
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

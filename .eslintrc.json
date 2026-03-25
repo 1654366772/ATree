@@ -1,0 +1,12 @@
+{
+  "parser": "@typescript-eslint/parser", // TypeScript 项目需指定
+  "extends": [
+    "airbnb-base", // ESLint 推荐规则
+    // "plugin:react/recommended",   // React 规则（可选）
+    "plugin:prettier/recommended" // 集成 Prettier（关键！）
+  ],
+  "rules": {
+    "semi": ["error", "always"], // 自定义规则示例：强制分号
+    "no-console": "warn" // 禁止 console 警告
+  }
+}

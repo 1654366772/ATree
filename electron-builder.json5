@@ -1,0 +1,101 @@
+// @see https://www.electron.build/configuration/configuration
+{
+  "$schema": "https://gitee.com/mirrors/electron-builder/raw/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.atree.app",
+  "asar": true,
+  "asarUnpack": [
+    "**/*.node",
+    "**/*.dll",
+    "**/*.so",
+    "**/*.dylib"
+  ],
+  "productName": "ATree",
+  "copyright": "Copyright © 2026 ATree",
+  "directories": {
+    "output": "dist",
+    "buildResources": "public"
+  },
+  "files": [
+    "dist",
+    "dist-electron",
+    "!**/node_modules/**/test{,s}",
+    "!**/node_modules/**/*.d.ts",
+    "!**/node_modules/**/*.tsbuildinfo"
+  ],
+  "extraResources": [
+    {
+      "from": "public",
+      "to": "public",
+      "filter": [
+        "**/*",
+        "!logo.ico",
+        "!AppIcon.icns",
+        "!logo.png",
+        "!logo_*.png"
+      ]
+    }
+  ],
+  "electronDownload": {
+    "mirror": "https://npmmirror.com/mirrors/electron/"
+  },
+  "electronLanguages": ["zh-CN", "en-US"],
+  "publish": [
+    {
+      "provider": "generic",
+      "url": "https://your-update-server.com/updates/"
+    }
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      }
+    ],
+    "icon": "public/logo.ico",
+    "artifactName": "${productName}_Setup_${version}.${ext}",
+    "publisherName": "ATree Team",
+    "verifyUpdateCodeSignature": false
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": true,
+    "deleteAppDataOnUninstall": false,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "ATree",
+    "installerIcon": "public/logo.ico",
+    "uninstallerIcon": "public/logo.ico",
+    "installerHeaderIcon": "public/logo.ico"
+  },
+  "mac": {
+    "target": [
+      "dmg",
+      "zip"
+    ],
+    "icon": "public/AppIcon.icns",
+    "hardenedRuntime": true,
+    "gatekeeperAssess": false,
+    "category": "public.app-category.utilities"
+  },
+  "linux": {
+    "target": [
+      "AppImage",
+      "deb"
+    ],
+    "icon": "public/logo.png",
+    "executableName": "atree",
+    "maintainer": "ATree Team <team@atree.com>",
+    "category": "Utility"
+  }
+}
+
+
+
+
+
