@@ -24,9 +24,9 @@ def get_args():
     parser.add_argument("--port", type=int, default=8000, help="监听端口")
     
     # 交互式询问或使用默认值
-    parser.add_argument("--use_fp16", action="store_true", help="是否启用 fp16")
-    parser.add_argument("--use_deepspeed", action="store_true", help="是否启用 DeepSpeed")
-    parser.add_argument("--use_cuda_kernel", action="store_true", help="是否启用 CUDA Kernel")
+    parser.add_argument("--use_fp16", action="store_true", default=None, help="是否启用 fp16")
+    parser.add_argument("--use_deepspeed", action="store_true", default=None, help="是否启用 DeepSpeed")
+    parser.add_argument("--use_cuda_kernel", action="store_true", default=None, help="是否启用 CUDA Kernel")
     parser.add_argument("--no_interactive", action="store_true", help="禁用交互式询问，直接使用命令行参数")
     
     return parser.parse_args()
@@ -35,20 +35,26 @@ args = get_args()
 
 # 如果没有开启非交互模式，则在控制台询问
 def interactive_config():
-    if args.no_interactive:
-        return args.use_fp16, args.use_deepspeed, args.use_cuda_kernel
+    # 自动检测 CUDA
+    has_cuda = torch.cuda.is_available()
+    
+    # 检查是否在命令行中指定了任何加速标志
+    cli_specified = any(x is not None for x in [args.use_fp16, args.use_deepspeed, args.use_cuda_kernel])
+    
+    if args.no_interactive or cli_specified:
+        # 如果指定了，则没传的默认为 False (或者您可以改为默认为 has_cuda，但既然显式传参了，未传的按常规设为 False 较保险)
+        # 这里我们选择：如果传了任何一个，则没传的统统设为 False，避免用户混淆
+        return bool(args.use_fp16), bool(args.use_deepspeed), bool(args.use_cuda_kernel)
     
     print("\n--- 模型加载配置询问 ---")
     
     def ask_bool(prompt, default):
         choice = input(f"{prompt} (y/n, 默认 {'y' if default else 'n'}): ").lower().strip()
+        if not choice: return default
         if choice == 'y': return True
         if choice == 'n': return False
         return default
 
-    # 自动检测 CUDA
-    has_cuda = torch.cuda.is_available()
-    
     use_fp16 = ask_bool("是否启用 fp16 (半精度加速)", default=has_cuda)
     use_deepspeed = ask_bool("是否启用 DeepSpeed (推理优化)", default=has_cuda)
     use_cuda_kernel = ask_bool("是否启用 custom CUDA Kernel (BigVGAN 加速)", default=has_cuda)

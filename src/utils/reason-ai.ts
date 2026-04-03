@@ -129,7 +129,7 @@ export class AIService {
     }
 
     const baseUrl =
-      this.config.base_url?.replace(/\/+$/, '') || 'https://api.openai.com/v1';
+      this.config.base_url?.trim().replace(/\/+$/, '') || 'https://api.openai.com/v1';
 
     // 优先使用手动指定的具体模型，否则取 model_ids 中的第一个
     const activeModelId =

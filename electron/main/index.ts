@@ -336,7 +336,7 @@ ipcMain.handle('api:uploadFile', async (_event, { url, filePath, headers, direct
       formData.append('file_name', fileName);
     }
 
-    const resp = await net.fetch(url + '/upload_reference', {
+    const resp = await net.fetch(url.trim().replace(/\/+$/, '') + '/upload_reference', {
       method: 'POST',
       body: formData,
       headers: headers,
@@ -357,7 +357,7 @@ ipcMain.handle('api:uploadFile', async (_event, { url, filePath, headers, direct
 
 ipcMain.handle('api:infer', async (_event, { url, headers, data, savePath }) => {
   try {
-    const resp = await net.fetch(url + '/infer', {
+    const resp = await net.fetch(url.trim().replace(/\/+$/, '') + '/infer', {
       method: 'POST',
       headers: headers,
       body: JSON.stringify(data),
@@ -410,7 +410,7 @@ ipcMain.handle('api:infer', async (_event, { url, headers, data, savePath }) => 
 
 ipcMain.handle('api:checkFileExists', async (_event, { url, path }) => {
   try {
-    const resp = await net.fetch(`${url}/check_file_exists?path=${encodeURIComponent(path)}`, {
+    const resp = await net.fetch(`${url.trim().replace(/\/+$/, '')}/check_file_exists?path=${encodeURIComponent(path)}`, {
       method: 'GET',
     });
 
@@ -442,7 +442,7 @@ ipcMain.handle('api:heartbeat', async (_event, { url, retries = 0, interval = 10
 
   while (attempt < maxAttempts) {
     try {
-      const resp = await net.fetch(`${url}/heartbeat`, {
+      const resp = await net.fetch(`${url.trim().replace(/\/+$/, '')}/heartbeat`, {
         method: 'GET',
       });
       if (resp.ok) {

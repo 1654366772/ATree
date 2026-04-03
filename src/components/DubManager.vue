@@ -571,33 +571,25 @@ const playAudio = (path?: string, key?: string) => {
     return;
   }
 
-  // 智能解析音频地址
-  let finalUrl = path;
-
-  if (
-    !finalUrl.startsWith('http://') &&
-    !finalUrl.startsWith('https://') &&
-    !finalUrl.startsWith('media://')
-  ) {
-    // 判断是否为本地绝对路径 (Windows: C:\\... 或网络路径 \\)
-    const isLocalPath = /^[a-zA-Z]:\\/.test(finalUrl) || finalUrl.startsWith('\\\\');
+  // 只支持本地音频播放
+  let finalUrl = '';
+  if (path.startsWith('media://')) {
+    finalUrl = path;
+  } else {
+    const isLocalPath = /^[a-zA-Z]:\\/.test(path) || path.startsWith('\\\\');
     let absoluteLocalPath = '';
-    
+
     if (isLocalPath) {
-      absoluteLocalPath = finalUrl;
-    } else if (article.value?.save_path && finalUrl.startsWith(article.value.name + '/')) {
-      absoluteLocalPath = `${article.value.save_path}/${finalUrl}`;
+      absoluteLocalPath = path;
+    } else if (article.value?.save_path && path.startsWith(article.value.name + '/')) {
+      absoluteLocalPath = `${article.value.save_path}/${path}`;
     }
 
     if (absoluteLocalPath) {
       finalUrl = `media://get-file?path=${encodeURIComponent(absoluteLocalPath)}`;
-    } else if (currentDubbingModel.value?.base_url) {
-      // 视为服务器相对路径
-      const base = currentDubbingModel.value.base_url
-        .replace(/\/+$/, '')
-        .replace(/\/v1$/, '');
-      const relativePath = finalUrl.startsWith('/') ? finalUrl : `/${finalUrl}`;
-      finalUrl = `${base}${relativePath}`;
+    } else {
+      ElMessage.warning('非本地音频或路径非法：无法从本地找到文件');
+      return;
     }
   }
 
@@ -995,13 +987,12 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
     if (!role) throw new Error('当前台词没有指定角色');
     if (!role.remote_path) throw new Error('该角色没有可用的发音人参考音频 (remote_path为空)');
 
-    const baseUrl = currentDubbingModel.value.base_url?.replace(/\/+$/, '') || '';
-    const rootUrl = baseUrl.replace(/\/v1$/, '');
+    const baseUrl = currentDubbingModel.value.base_url || '';
 
     // 3. 检查并补全参考音频
     // 检查角色参考音频
     const spkCheckResult = await (window as any).ipcRenderer.invoke('api:checkFileExists', {
-      url: rootUrl,
+      url: baseUrl,
       path: role.remote_path
     });
 
@@ -1020,7 +1011,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
       const dubber = allDubbers.value.find(d => d.id === role.dubber_id);
       if (dubber && dubber.audio_path) {
         const uploadResult = await (window as any).ipcRenderer.invoke('api:uploadFile', {
-          url: rootUrl, 
+          url: baseUrl, 
           filePath: dubber.audio_path,
           directory: `/role_audio`,
           fileName: role.name
@@ -1043,7 +1034,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
     // 检查情感参考音频 (模式1)
     if (line.emo_control === '1' && line.emo_audio_prompt) {
       const emoCheckResult = await (window as any).ipcRenderer.invoke('api:checkFileExists', {
-        url: rootUrl,
+        url: baseUrl,
         path: line.emo_audio_prompt
       });
       
@@ -1056,7 +1047,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
       if (!emoExists) {
         if (line.local_emo_audio) {
           const uploadResult = await (window as any).ipcRenderer.invoke('api:uploadFile', {
-            url: rootUrl,
+            url: baseUrl,
             filePath: line.local_emo_audio,
             directory: `/emo_audio`
           });
@@ -1170,7 +1161,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
 // 心跳检测函数
 const checkHeartbeat = async () => {
   if (!currentDubbingModel.value?.base_url) return true;
-  const baseUrl = currentDubbingModel.value.base_url.replace(/\/+$/, '').replace(/\/v1$/, '');
+  const baseUrl = currentDubbingModel.value.base_url || '';
   try {
     const result = await (window as any).ipcRenderer.invoke('api:heartbeat', { 
       url: baseUrl, 

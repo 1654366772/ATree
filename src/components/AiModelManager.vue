@@ -178,21 +178,21 @@ const handleTestConnection = async () => {
     }
   } else if (form.value.type === '配音') {
     try {
-      ElMessage.info('正在测试心跳连接...');
+      ElMessage.info('正在测试连接...');
       // 调用后台 api:heartbeat
       const res = await (window as any).ipcRenderer.invoke('api:heartbeat', {
-        url: form.value.base_url.trim(),
+        url: form.value.base_url,
         retries: 2,
         interval: 1000,
       });
 
       if (res.success) {
-        ElMessage.success('配音模型心跳连接成功！');
+        ElMessage.success('配音模型连接成功！');
       } else {
-        ElMessage.error(`配音模型心跳连接失败: ${res.error}`);
+        ElMessage.error(`配音模型连接失败: ${res.error}`);
       }
     } catch (error: any) {
-      ElMessage.error(`心跳检测出现错误: ${error.message}`);
+      ElMessage.error(`连接出现错误: ${error.message}`);
     }
   }
 };
