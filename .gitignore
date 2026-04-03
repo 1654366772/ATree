@@ -12,7 +12,7 @@ dist
 dist-ssr
 dist-electron
 release
-外部资源
+剪映草稿
 *.local
 
 # Editor directories and files
