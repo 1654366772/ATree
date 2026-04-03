@@ -142,32 +142,58 @@ const openEditDialog = (model: AiModel) => {
 };
 
 const handleTestConnection = async () => {
-  if (!form.value.base_url || !form.value.api_key || !form.value.model_ids) {
-    ElMessage.warning('请先填写 Base URL、API Key 和模型 ID');
+  if (!form.value.base_url) {
+    ElMessage.warning('请先填写 Base URL');
     return;
   }
 
-  // 使用逗号分隔列表中的第一个模型 ID
-  const firstModelId = form.value.model_ids.split(',')[0].trim();
-  if (!firstModelId) {
-    ElMessage.warning('请提供有效的模型 ID');
-    return;
-  }
+  // 推理模型需要 API Key 和模型 ID
+  if (form.value.type === '推理') {
+    if (!form.value.api_key || !form.value.model_ids) {
+      ElMessage.warning('请先填写 API Key 和模型 ID');
+      return;
+    }
 
-  const config = {
-    ...form.value,
-    specific_model_id: firstModelId,
-  };
+    // 使用逗号分隔列表中的第一个模型 ID
+    const firstModelId = form.value.model_ids.split(/[，,]/)[0].trim();
+    if (!firstModelId) {
+      ElMessage.warning('请提供有效的模型 ID');
+      return;
+    }
 
-  try {
-    ElMessage.info('正在测试连接...');
-    // 直接创建实例，因为我们要测试表单数据，而不是数据库记录
-    const aiService = new AIService(config);
+    const config = {
+      ...form.value,
+      specific_model_id: firstModelId,
+    };
 
-    await aiService.chat([{ role: 'user', content: 'Hello' }]);
-    ElMessage.success('连接测试成功！');
-  } catch (error: any) {
-    ElMessage.error(`连接失败: ${error.message}`);
+    try {
+      ElMessage.info('正在测试连接...');
+      // 直接创建实例，因为我们要测试表单数据，而不是数据库记录
+      const aiService = new AIService(config);
+
+      await aiService.chat([{ role: 'user', content: 'Hello' }]);
+      ElMessage.success('推理模型连接测试成功！');
+    } catch (error: any) {
+      ElMessage.error(`推理模型连接失败: ${error.message}`);
+    }
+  } else if (form.value.type === '配音') {
+    try {
+      ElMessage.info('正在测试心跳连接...');
+      // 调用后台 api:heartbeat
+      const res = await (window as any).ipcRenderer.invoke('api:heartbeat', {
+        url: form.value.base_url.trim(),
+        retries: 2,
+        interval: 1000,
+      });
+
+      if (res.success) {
+        ElMessage.success('配音模型心跳连接成功！');
+      } else {
+        ElMessage.error(`配音模型心跳连接失败: ${res.error}`);
+      }
+    } catch (error: any) {
+      ElMessage.error(`心跳检测出现错误: ${error.message}`);
+    }
   }
 };
 
@@ -179,12 +205,13 @@ const handleSubmit = async () => {
 
     try {
       const db = await initDB();
+      const isDubbing = form.value.type === '配音';
       const data = {
         name: form.value.name.trim(),
         type: form.value.type,
         base_url: form.value.base_url.trim(),
-        api_key: form.value.api_key.trim(),
-        model_ids: form.value.model_ids.trim(),
+        api_key: isDubbing ? '' : form.value.api_key.trim(),
+        model_ids: isDubbing ? '' : form.value.model_ids.trim(),
         is_deleted: 0,
       };
 
@@ -243,9 +270,9 @@ const displayUrlAndId = (model: AiModel) => {
   const url = model.base_url
     ? model.base_url.replace(/^https?:\/\//, '')
     : '未设置 URL';
-  const ids = model.model_ids ? model.model_ids.split(',')[0] : '未设置模型';
-  const more = model.model_ids && model.model_ids.includes(',') ? '...' : '';
-  return `${url} / ${ids}${more}`;
+  const ids = model.model_ids ? model.model_ids.split(/[，,]/)[0] : '未设置模型';
+  const more = model.model_ids && /[，,]/.test(model.model_ids) ? '...' : '';
+  return `${url} ${model.type === '推理' ? `${ids}${more}` : ''}`;
 };
 
 onMounted(() => {
@@ -377,7 +404,7 @@ onMounted(() => {
           </el-form-item>
         </div>
 
-        <el-form-item label="API Key" prop="api_key">
+        <el-form-item label="API Key" prop="api_key" v-if="form.type === '推理'">
           <el-input
             v-model="form.api_key"
             :type="showApiKey ? 'text' : 'password'"
@@ -391,10 +418,10 @@ onMounted(() => {
           </el-input>
         </el-form-item>
 
-        <el-form-item label="模型ID" prop="model_ids">
+        <el-form-item label="模型ID" prop="model_ids" v-if="form.type === '推理'">
           <el-input
             v-model="form.model_ids"
-            placeholder="多个用逗号分隔，例如 gpt-4,gpt-3.5-turbo"
+            placeholder="多个用中/英文逗号分隔，例如 gpt-4,gpt-3.5-turbo"
           />
         </el-form-item>
 

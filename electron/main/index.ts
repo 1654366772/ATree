@@ -434,6 +434,7 @@ ipcMain.handle('api:checkFileExists', async (_event, { url, path }) => {
   }
 });
 
+//语音生成服务心跳检测
 ipcMain.handle('api:heartbeat', async (_event, { url, retries = 0, interval = 1000 }) => {
   let attempt = 0;
   const maxAttempts = retries + 1;

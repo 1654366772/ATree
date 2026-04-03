@@ -134,7 +134,7 @@ export class AIService {
     // 优先使用手动指定的具体模型，否则取 model_ids 中的第一个
     const activeModelId =
       this.config.specific_model_id ||
-      this.config.model_ids?.split(',')[0]?.trim();
+      this.config.model_ids?.split(/[，,]/)[0]?.trim();
 
     if (!activeModelId) {
       throw new Error('配置中未定义具体的模型ID。');

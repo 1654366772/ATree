@@ -173,7 +173,7 @@ const availableInferenceSpecificModels = computed(() => {
     (m) => m.id === settingsForm.value.inference_model_id,
   );
   if (!model || !model.model_ids) return [];
-  return model.model_ids.split(',').map((id) => id.trim());
+  return model.model_ids.split(/[，,]/).map((id) => id.trim());
 });
 
 const availableDubbingSpecificModels = computed(() => {
@@ -181,7 +181,7 @@ const availableDubbingSpecificModels = computed(() => {
     (m) => m.id === settingsForm.value.dubbing_model_id,
   );
   if (!model || !model.model_ids) return [];
-  return model.model_ids.split(',').map((id) => id.trim());
+  return model.model_ids.split(/[，,]/).map((id) => id.trim());
 });
 
 const currentDubbingModel = computed(() => {
