@@ -20,7 +20,7 @@ const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void;
 }>();
 
-const maxChars = useStorage('jy-export-max-chars', 15);
+const maxChars = useStorage('jy-export-max-chars', 0);
 const splitByPunctuation = useStorage('jy-export-split-punct', true);
 const jianyingDraftsPath = useStorage('jy-export-drafts-path', '');
 const isGenerating = ref(false);

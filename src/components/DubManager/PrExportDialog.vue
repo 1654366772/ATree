@@ -19,7 +19,7 @@ const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void;
 }>();
 
-const maxChars = useStorage('pr-export-max-chars', 15);
+const maxChars = useStorage('pr-export-max-chars', 0);
 const splitByPunctuation = useStorage('pr-export-split-punct', true);
 const prProjectSavePath = useStorage('pr-export-project-path', '');
 const isGenerating = ref(false);
