@@ -343,7 +343,7 @@ const cleanupInterruptedTasks = async () => {
     }
     await tx.done;
   } catch (error) {
-    console.error('Cleanup interrupted tasks failed:', error);
+    ElMessage.error('Cleanup interrupted tasks failed:' + error);
   }
 };
 
@@ -1131,7 +1131,6 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
     await handleUpdateLine(line);
 
     const fsPath = `${article.value.save_path}/${article.value.name}/${actualChapterName}/${displayIndex}_${role.name}.wav`;
-    console.log(payload)
     const response = await (window as any).ipcRenderer.invoke('api:infer', {
       method: 'POST',
       url: baseUrl,
@@ -1240,7 +1239,7 @@ const startQueueProcessing = async () => {
           if (idx !== -1) dubbingQueue.value.splice(idx, 1);
         }
       } catch (err: any) {
-        console.error('Queue item error:', err);
+        ElMessage.error('Queue item error:', err);
       }
     }
   } finally {
