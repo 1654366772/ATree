@@ -17,33 +17,36 @@ const dialogVisible = computed({
 </script>
 
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    title="确认删除"
-    width="440px"
-    append-to-body
-    class="delete-dialog"
-  >
-    <div class="delete-content">
-      <div class="delete-text">
-        <div class="title">确认删除</div>
-        <div class="desc">是否确认删除该章节？关联台词将同步删除</div>
+  <div class="delete-chapter-dialog-wrapper">
+    <el-dialog
+      :model-value="dialogVisible"
+      @update:modelValue="dialogVisible = $event"
+      title="确认删除"
+      width="440px"
+      append-to-body
+      class="delete-dialog"
+    >
+      <div class="delete-content">
+        <div class="delete-text">
+          <div class="title">确认删除</div>
+          <div class="desc">是否确认删除该章节？关联台词将同步删除</div>
+        </div>
       </div>
-    </div>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button class="cancel-btn" @click="dialogVisible = false"
-          >取消</el-button
-        >
-        <el-button
-          class="confirm-delete-btn"
-          type="danger"
-          @click="emit('confirm')"
-          >确认删除</el-button
-        >
-      </div>
-    </template>
-  </el-dialog>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button class="cancel-btn" @click="dialogVisible = false"
+            >取消</el-button
+          >
+          <el-button
+            class="confirm-delete-btn"
+            type="danger"
+            @click="emit('confirm')"
+            >确认删除</el-button
+          >
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <style scoped>
@@ -94,3 +97,4 @@ const dialogVisible = computed({
   margin-left: 0;
 }
 </style>
+

@@ -288,53 +288,55 @@ const handleOpenFolder = async () => {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    title="生成剪映草稿"
-    width="500px"
-    @update:model-value="(val: any) => emit('update:visible', val as boolean)"
-  >
-    <el-form label-width="120px" class="pr-export-form">
-      <el-form-item label="剪映草稿目录">
-        <el-input v-model="jianyingDraftsPath" placeholder="请选择剪映草稿目录" readonly>
-          <template #append>
-            <el-button @click="selectDraftsPath">选择</el-button>
-          </template>
-        </el-input>
-        <div class="tip">
-          在剪映全局设置中可以查看剪映草稿目录JianyingPro Drafts
-        </div>
-      </el-form-item>
-      
-      <el-form-item label="根据字数拆分">
-        <el-input-number v-model="maxChars" :min="0" :max="100" />
-        <div class="tip">当每段字幕字数超过此数值时进行强制拆分（设为 0 则不按字数拆分）</div>
-      </el-form-item>
-      
-      <el-form-item label="根据标点拆分">
-        <el-switch v-model="splitByPunctuation" />
-        <div class="tip">开启后优先根据逗号、句号等标点拆分字幕</div>
-      </el-form-item>
-    </el-form>
+  <div class="jy-export-dialog-wrapper">
+    <el-dialog
+      :model-value="visible"
+      title="生成剪映草稿"
+      width="500px"
+      @update:model-value="(val: any) => emit('update:visible', val as boolean)"
+    >
+      <el-form label-width="120px" class="pr-export-form">
+        <el-form-item label="剪映草稿目录">
+          <el-input v-model="jianyingDraftsPath" placeholder="请选择剪映草稿目录" readonly>
+            <template #append>
+              <el-button @click="selectDraftsPath">选择</el-button>
+            </template>
+          </el-input>
+          <div class="tip">
+            在剪映全局设置中可以查看剪映草稿目录JianyingPro Drafts
+          </div>
+        </el-form-item>
+        
+        <el-form-item label="根据字数拆分">
+          <el-input-number v-model="maxChars" :min="0" :max="100" />
+          <div class="tip">当每段字幕字数超过此数值时进行强制拆分（设为 0 则不按字数拆分）</div>
+        </el-form-item>
+        
+        <el-form-item label="根据标点拆分">
+          <el-switch v-model="splitByPunctuation" />
+          <div class="tip">开启后优先根据逗号、句号等标点拆分字幕</div>
+        </el-form-item>
+      </el-form>
 
-    <div v-if="exportSubfolderPath" class="success-alert">
-      <el-alert title="草稿生成成功" type="success" :closable="false">
-        草稿已直接保存到剪映草稿目录！现在可以直接在剪映中打开该草稿了。
-      </el-alert>
-    </div>
+      <div v-if="exportSubfolderPath" class="success-alert">
+        <el-alert title="草稿生成成功" type="success" :closable="false">
+          草稿已直接保存到剪映草稿目录！现在可以直接在剪映中打开该草稿了。
+        </el-alert>
+      </div>
 
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="emit('update:visible', false)">取消</el-button>
-        <el-button type="primary" :loading="isGenerating" @click="handleGenerate">
-          开始生成
-        </el-button>
-        <el-button v-if="exportSubfolderPath" type="success" @click="handleOpenFolder">
-          打开目录
-        </el-button>
-      </span>
-    </template>
-  </el-dialog>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="emit('update:visible', false)">取消</el-button>
+          <el-button type="primary" :loading="isGenerating" @click="handleGenerate">
+            开始生成
+          </el-button>
+          <el-button v-if="exportSubfolderPath" type="success" @click="handleOpenFolder">
+            打开目录
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <style scoped>

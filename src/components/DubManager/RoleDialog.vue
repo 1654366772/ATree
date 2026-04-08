@@ -53,46 +53,49 @@ watch(
 </script>
 
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    :title="type === 'add' ? '新增角色' : '编辑角色'"
-    width="500px"
-    append-to-body
-  >
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-position="top"
+  <div class="role-dialog-wrapper">
+    <el-dialog
+      :model-value="dialogVisible"
+      @update:modelValue="dialogVisible = $event"
+      :title="type === 'add' ? '新增角色' : '编辑角色'"
+      width="500px"
+      append-to-body
     >
-      <el-form-item label="角色名称" prop="name">
-        <el-input v-model="form.name" placeholder="例如：林黛玉 / 旁白" />
-      </el-form-item>
-      <el-form-item label="角色简介">
-        <el-input v-model="form.intro" placeholder="对角色的简单描述" />
-      </el-form-item>
-      <el-form-item label="绑定配音员">
-        <el-select
-          v-model="form.dubber_id"
-          placeholder="打字搜索配音员"
-          filterable
-          clearable
-          style="width: 100%"
-        >
-          <el-option
-            v-for="d in allDubbers"
-            :key="d.id"
-            :label="d.name"
-            :value="d.id"
-          />
-        </el-select>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="dialogVisible = false">取消</el-button>
-      <el-button type="primary" @click="handleSave">保存</el-button>
-    </template>
-  </el-dialog>
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        label-position="top"
+      >
+        <el-form-item label="角色名称" prop="name">
+          <el-input v-model="form.name" placeholder="例如：林黛玉 / 旁白" />
+        </el-form-item>
+        <el-form-item label="角色简介">
+          <el-input v-model="form.intro" placeholder="对角色的简单描述" />
+        </el-form-item>
+        <el-form-item label="绑定配音员">
+          <el-select
+            v-model="form.dubber_id"
+            placeholder="打字搜索配音员"
+            filterable
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="d in allDubbers"
+              :key="d.id"
+              :label="d.name"
+              :value="d.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSave">保存</el-button>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <style scoped>
@@ -100,3 +103,4 @@ watch(
   margin-left: 0;
 }
 </style>
+

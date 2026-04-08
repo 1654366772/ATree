@@ -38,46 +38,49 @@ const handleSave = async () => {
 </script>
 
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    :title="type === 'add' ? '新建章节' : '修改章节'"
-    width="600px"
-    append-to-body
-    class="custom-dialog"
-  >
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-position="top"
+  <div class="chapter-dialog-wrapper">
+    <el-dialog
+      :model-value="dialogVisible"
+      @update:modelValue="dialogVisible = $event"
+      :title="type === 'add' ? '新建章节' : '修改章节'"
+      width="600px"
+      append-to-body
+      class="custom-dialog"
     >
-      <el-form-item label="章节名称" prop="name">
-        <el-input v-model="form.name" placeholder="请输入章节标题" />
-      </el-form-item>
-      <el-form-item label="章节内容" prop="content">
-        <el-input
-          v-model="form.content"
-          type="textarea"
-          :rows="12"
-          placeholder="在此处粘贴或输入章节正文"
-        />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button class="cancel-btn" @click="dialogVisible = false"
-          >取消</el-button
-        >
-        <el-button
-          :class="['submit-btn', type]"
-          type="primary"
-          @click="handleSave"
-        >
-          {{ type === 'add' ? '创建' : '保存' }}
-        </el-button>
-      </div>
-    </template>
-  </el-dialog>
+      <el-form
+        ref="formRef"
+        :model="form"
+        :rules="rules"
+        label-position="top"
+      >
+        <el-form-item label="章节名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入章节标题" />
+        </el-form-item>
+        <el-form-item label="章节内容" prop="content">
+          <el-input
+            v-model="form.content"
+            type="textarea"
+            :rows="12"
+            placeholder="在此处粘贴或输入章节正文"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button class="cancel-btn" @click="dialogVisible = false"
+            >取消</el-button
+          >
+          <el-button
+            :class="['submit-btn', type]"
+            type="primary"
+            @click="handleSave"
+          >
+            {{ type === 'add' ? '创建' : '保存' }}
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <style scoped>
@@ -138,3 +141,4 @@ const handleSave = async () => {
   margin-left: 0;
 }
 </style>
+

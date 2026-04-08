@@ -176,7 +176,7 @@ def check_file_exists(path: str) -> bool:
 def heartbeat():
     return {"status": "ok", "time": time.time()}
 
-@app.post("/upload_reference", description="上传参考音频文件")
+@app.post("/upload_reference", description="上传音频文件")
 async def upload_reference(
     file: UploadFile = File(...), 
     directory: str = Form(...), 
@@ -194,18 +194,21 @@ async def upload_reference(
     os.makedirs(safe_dir, exist_ok=True)
     
     # 确定文件名基准
-    original_name = fileName if fileName else file.filename
-    base, ext = os.path.splitext(original_name)
+    if fileName:
+        original_ext = ""
+        if file.filename and "." in file.filename:
+            original_ext = file.filename[file.filename.rfind("."):]
+            
+        if original_ext and not fileName.endswith(original_ext):
+            original_name = fileName + original_ext
+        else:
+            original_name = fileName
+    else:
+        original_name = file.filename
     
-    # 检查重名逻辑
+    # 直接覆盖
     final_path = os.path.join(safe_dir, original_name)
     final_filename = original_name
-    
-    if os.path.exists(final_path):
-        # 存在同名文件，添加时间戳
-        timestamp = int(time.time())
-        final_filename = f"{base}_{timestamp}{ext}"
-        final_path = os.path.join(safe_dir, final_filename)
     
     # 执行保存
     with open(final_path, "wb") as buffer:

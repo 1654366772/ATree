@@ -28,66 +28,69 @@ const dialogVisible = computed({
 </script>
 
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    title="配音队列"
-    width="600px"
-    append-to-body
-    class="custom-dialog"
-  >
-    <el-table :data="queue" style="width: 100%" max-height="400">
-      <el-table-column prop="chapterName" label="章节" width="120" align="center" show-overflow-tooltip />
-      <el-table-column label="序号" width="60" align="center">
-        <template #default="scope">
-          {{ scope.row.index + 1 }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="line.role_id" label="角色" align="center">
-        <template #default="scope">
-          {{ roles.find(r => r.id === scope.row.line.role_id)?.name || '未知角色' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="状态" width="100" align="center">
-        <template #default="scope">
-          <el-tag
-            :type="scope.row.line.status === 2 ? 'warning' : (scope.row.line.status === 4 ? 'danger' : (scope.row.line.status === 1 ? 'info' : 'success'))"
-            size="small"
-          >
-            {{ scope.row.line.status === 2 ? '生成中' : (scope.row.line.status === 4 ? '失败' : (scope.row.line.status === 1 ? '等待中' : '完成')) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="100" align="center">
-        <template #default="scope">
-          <div style="display: flex; gap: 8px; justify-content: center; align-items: center; min-height: 24px;">
-            <el-tooltip v-if="scope.row.line.status === 4" content="再次尝试生成该条音频" placement="top">
-              <el-button
-                type="primary"
-                size="small"
-                link
-                :icon="Refresh"
-                @click="emit('retry', scope.row.line, scope.row.index)"
-              ></el-button>
-            </el-tooltip>
-            <el-tooltip content="将该任务从队列中移除" placement="top">
-              <el-button
-                type="danger"
-                size="small"
-                link
-                :icon="Delete"
-                @click="emit('remove', scope.row.line.id)"
-              ></el-button>
-            </el-tooltip>
-          </div>
-        </template>
-      </el-table-column>
-    </el-table>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="dialogVisible = false">关闭</el-button>
-      </div>
-    </template>
-  </el-dialog>
+  <div class="queue-dialog-wrapper">
+    <el-dialog
+      :model-value="dialogVisible"
+      @update:modelValue="dialogVisible = $event"
+      title="配音队列"
+      width="600px"
+      append-to-body
+      class="custom-dialog"
+    >
+      <el-table :data="queue" style="width: 100%" max-height="400">
+        <el-table-column prop="chapterName" label="章节" width="120" align="center" show-overflow-tooltip />
+        <el-table-column label="序号" width="60" align="center">
+          <template #default="scope">
+            {{ scope.row.index + 1 }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="line.role_id" label="角色" align="center">
+          <template #default="scope">
+            {{ roles.find(r => r.id === scope.row.line.role_id)?.name || '未知角色' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100" align="center">
+          <template #default="scope">
+            <el-tag
+              :type="scope.row.line.status === 2 ? 'warning' : (scope.row.line.status === 4 ? 'danger' : (scope.row.line.status === 1 ? 'info' : 'success'))"
+              size="small"
+            >
+              {{ scope.row.line.status === 2 ? '生成中' : (scope.row.line.status === 4 ? '失败' : (scope.row.line.status === 1 ? '等待中' : '完成')) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="100" align="center">
+          <template #default="scope">
+            <div style="display: flex; gap: 8px; justify-content: center; align-items: center; min-height: 24px;">
+              <el-tooltip v-if="scope.row.line.status === 4" content="再次尝试生成该条音频" placement="top">
+                <el-button
+                  type="primary"
+                  size="small"
+                  link
+                  :icon="Refresh"
+                  @click="emit('retry', scope.row.line, scope.row.index)"
+                ></el-button>
+              </el-tooltip>
+              <el-tooltip content="将该任务从队列中移除" placement="top">
+                <el-button
+                  type="danger"
+                  size="small"
+                  link
+                  :icon="Delete"
+                  @click="emit('remove', scope.row.line.id)"
+                ></el-button>
+              </el-tooltip>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="dialogVisible = false">关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <style scoped>
@@ -128,3 +131,4 @@ const dialogVisible = computed({
   margin-left: 0;
 }
 </style>
+

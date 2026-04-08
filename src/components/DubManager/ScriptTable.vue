@@ -194,7 +194,6 @@ const isAllSelected = computed(
                     size="small"
                     class="mode-select"
                     @change="() => {
-                      rowData.use_emo_text = (rowData.emo_control === '4');
                       emit('updateLine', rowData);
                     }"
                   >
@@ -310,7 +309,7 @@ const isAllSelected = computed(
                 </div>
 
                 <!-- 第二行：具体参数输入 (仅当非角色模式时) -->
-                <div v-if="!['0','4'].includes(rowData.emo_control)" class="control-body">
+                <div v-if="!['0'].includes(rowData.emo_control)" class="control-body">
                   <!-- 情感音频上传 (模式 1) -->
                   <div v-if="rowData.emo_control === '1'" class="detail-item audio-upload-group">
                     <template v-if="!rowData.emo_audio_prompt && !emotionUploadingLines.has(rowData.id)">
@@ -411,7 +410,7 @@ const isAllSelected = computed(
                   </div>
 
                   <!-- 权重控制 (音频和文字模式共用) -->
-                  <div v-if="['1','3','5'].includes(rowData.emo_control)" class="intensity-slider">
+                  <div v-if="['1','3','4'].includes(rowData.emo_control)" class="intensity-slider">
                     <span class="intensity-label">情感权重</span>
                     <el-slider
                       v-model="rowData.emo_alpha"

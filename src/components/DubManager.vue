@@ -314,6 +314,15 @@ const loadChapterLines = async (chapterId: number) => {
     lines.value = allLines
       .filter((l) => l.is_deleted === 0)
       .sort((a, b) => (a.sort_order ?? a.id ?? 0) - (b.sort_order ?? b.id ?? 0));
+      
+    // 同步已经在队列中的对象引用，使得 UI 能够响应队列中的状态更新
+    lines.value.forEach((line) => {
+      const qIndex = dubbingQueue.value.findIndex(item => item.line.id === line.id);
+      if (qIndex !== -1) {
+        Object.assign(line, dubbingQueue.value[qIndex].line);
+        dubbingQueue.value[qIndex].line = line;
+      }
+    });
   } catch (error) {
     ElMessage.error('加载数据失败：' + error);
   }
@@ -492,7 +501,7 @@ const handleSaveRole = async () => {
           url: article.value?.dubbing_model_id ? 
                dubbingModels.value.find(m => m.id === article.value!.dubbing_model_id)?.base_url : '', 
           filePath: dubber.audio_path,
-          directory: `/role_audio`,
+          directory: `/role_audio/${article.value?.id}_${article.value?.name}`,
           fileName: roleForm.value.name
         });
         
@@ -503,6 +512,8 @@ const handleSaveRole = async () => {
           return;
         }
       }
+    } else {
+      remote_path = '';
     }
 
     const data = {
@@ -1013,7 +1024,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
         const uploadResult = await (window as any).ipcRenderer.invoke('api:uploadFile', {
           url: baseUrl, 
           filePath: dubber.audio_path,
-          directory: `/role_audio`,
+          directory: `/role_audio/${article.value?.id}_${article.value?.name}`,
           fileName: role.name
         });
         if (!uploadResult.success) throw new Error('角色音频丢失且重传失败：' + uploadResult.error);
@@ -1103,6 +1114,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
         payload.emo_alpha = line.emo_alpha;
         break;
       case '4':
+        payload.use_random = !!line.use_random;
         payload.use_emo_text = true;
         payload.emo_alpha = line.emo_alpha;
         break;
@@ -1119,7 +1131,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
     await handleUpdateLine(line);
 
     const fsPath = `${article.value.save_path}/${article.value.name}/${actualChapterName}/${displayIndex}_${role.name}.wav`;
-
+    console.log(payload)
     const response = await (window as any).ipcRenderer.invoke('api:infer', {
       method: 'POST',
       url: baseUrl,
@@ -1247,9 +1259,10 @@ const handleGenerateLine = async (line: Line, passedIndex?: number) => {
   const existingItem = dubbingQueue.value.find(item => item.line.id === line.id);
   if (existingItem) {
     // 如果已经在队列中且状态是完成(3)或失败(4)，则重置状态尝试重新开始
-    if ([3,4].includes(line.status)) {
+    if ([3,4].includes(line.status) || [3,4].includes(existingItem.line.status)) {
       line.status = 1; // 变为等待中
       line.error_msg = '';
+      existingItem.line = line; // 确保队列引用的是最新的对象
       await handleUpdateLine(line);
       if (!isProcessingQueue.value) startQueueProcessing();
       return;
@@ -1311,10 +1324,11 @@ const handleBatchGenerate = async () => {
       addedCount++;
     } else {
       // 如果已在队列但失败了，也可以重置状态重新等待
-      if (qi.line.status === 4) {
-        qi.line.status = 1;
-        qi.line.error_msg = '';
-        await handleUpdateLine(qi.line);
+      if (qi.line.status === 4 || item.line.status === 4) {
+        item.line.status = 1;
+        item.line.error_msg = '';
+        qi.line = item.line; // 更新队列中的引用为表格中最新的引用
+        await handleUpdateLine(item.line);
         addedCount++;
       }
     }
@@ -1351,7 +1365,7 @@ const createEmptyLine = (orderValue: number): Line => {
     status: 0,
     is_deleted: 0,
     emo_control: '0',
-    emo_alpha: 0.5,
+    emo_alpha: 1.0,
     do_sample: true,
     top_p: 0.8,
     top_k: 30,
@@ -1603,7 +1617,8 @@ onMounted(() => {
     </div>
 
     <RoleListDialog
-      v-model:visible="roleListVisible"
+      :visible="roleListVisible"
+      @update:visible="roleListVisible = $event"
       :roles="roles"
       :filtered-roles="filteredRoles"
       :role-search-query="roleSearchQuery"
@@ -1618,7 +1633,8 @@ onMounted(() => {
     />
 
     <ChapterDialog
-      v-model:visible="chapterDialogVisible"
+      :visible="chapterDialogVisible"
+      @update:visible="chapterDialogVisible = $event"
       :type="chapterDialogType"
       :form="chapterForm"
       :rules="chapterRules"
@@ -1626,12 +1642,14 @@ onMounted(() => {
     />
 
     <DeleteChapterDialog
-      v-model:visible="deleteChapterVisible"
+      :visible="deleteChapterVisible"
+      @update:visible="deleteChapterVisible = $event"
       @confirm="confirmDeleteChapter"
     />
 
     <RoleDialog
-      v-model:visible="roleDialogVisible"
+      :visible="roleDialogVisible"
+      @update:visible="roleDialogVisible = $event"
       :type="roleDialogType"
       :form="roleForm"
       :rules="roleRules"
@@ -1640,7 +1658,8 @@ onMounted(() => {
     />
 
     <SettingsDialog
-      v-model:visible="settingsDialogVisible"
+      :visible="settingsDialogVisible"
+      @update:visible="settingsDialogVisible = $event"
       :settings-form="settingsForm"
       :inference-models="inferenceModels"
       :dubbing-models="dubbingModels"
@@ -1654,7 +1673,8 @@ onMounted(() => {
     />
 
     <PrExportDialog
-      v-model:visible="prExportVisible"
+      :visible="prExportVisible"
+      @update:visible="prExportVisible = $event"
       :lines="lines"
       :save-path="article?.save_path || ''"
       :article-name="article?.name || ''"
@@ -1664,7 +1684,8 @@ onMounted(() => {
     />
 
     <JianyingExportDialog
-      v-model:visible="jyExportVisible"
+      :visible="jyExportVisible"
+      @update:visible="jyExportVisible = $event"
       :lines="lines"
       :save-path="article?.save_path || ''"
       :article-name="article?.name || ''"
@@ -1674,7 +1695,8 @@ onMounted(() => {
     />
 
     <QueueDialog
-      v-model:visible="queueDialogVisible"
+      :visible="queueDialogVisible"
+      @update:visible="queueDialogVisible = $event"
       :queue="sortedDubbingQueue"
       :roles="roles"
       @retry="handleGenerateLine"

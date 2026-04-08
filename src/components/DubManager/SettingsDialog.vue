@@ -36,118 +36,121 @@ const dialogVisible = computed({
 </script>
 
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    title="文章设置"
-    width="500px"
-    append-to-body
-    class="custom-dialog"
-  >
-    <el-form label-position="top">
-      <el-form-item label="推理模型供应商">
-        <el-select
-          v-model="settingsForm.inference_model_id"
-          placeholder="选择一个推理模型供应商"
-          clearable
-          style="width: 100%"
-          @change="emit('changeInferenceModel')"
+  <div class="settings-dialog-wrapper">
+    <el-dialog
+      :model-value="dialogVisible"
+      @update:modelValue="dialogVisible = $event"
+      title="文章设置"
+      width="500px"
+      append-to-body
+      class="custom-dialog"
+    >
+      <el-form label-position="top">
+        <el-form-item label="推理模型供应商">
+          <el-select
+            v-model="settingsForm.inference_model_id"
+            placeholder="选择一个推理模型供应商"
+            clearable
+            style="width: 100%"
+            @change="emit('changeInferenceModel')"
+          >
+            <el-option
+              v-for="model in inferenceModels"
+              :key="model.id"
+              :label="model.name"
+              :value="model.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="推理具体模型"
+          v-if="availableInferenceSpecificModels.length > 0"
         >
-          <el-option
-            v-for="model in inferenceModels"
-            :key="model.id"
-            :label="model.name"
-            :value="model.id"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item
-        label="推理具体模型"
-        v-if="availableInferenceSpecificModels.length > 0"
-      >
-        <el-select
-          v-model="settingsForm.inference_model_string"
-          placeholder="选择具体使用的模型"
-          clearable
-          style="width: 100%"
+          <el-select
+            v-model="settingsForm.inference_model_string"
+            placeholder="选择具体使用的模型"
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="mId in availableInferenceSpecificModels"
+              :key="mId"
+              :label="mId"
+              :value="mId"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="配音模型供应商">
+          <el-select
+            v-model="settingsForm.dubbing_model_id"
+            placeholder="选择一个配音模型供应商"
+            clearable
+            style="width: 100%"
+            @change="emit('changeDubbingModel')"
+          >
+            <el-option
+              v-for="model in dubbingModels"
+              :key="model.id"
+              :label="model.name"
+              :value="model.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="配音具体模型"
+          v-if="availableDubbingSpecificModels.length > 0"
         >
-          <el-option
-            v-for="mId in availableInferenceSpecificModels"
-            :key="mId"
-            :label="mId"
-            :value="mId"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="配音模型供应商">
-        <el-select
-          v-model="settingsForm.dubbing_model_id"
-          placeholder="选择一个配音模型供应商"
-          clearable
-          style="width: 100%"
-          @change="emit('changeDubbingModel')"
-        >
-          <el-option
-            v-for="model in dubbingModels"
-            :key="model.id"
-            :label="model.name"
-            :value="model.id"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item
-        label="配音具体模型"
-        v-if="availableDubbingSpecificModels.length > 0"
-      >
-        <el-select
-          v-model="settingsForm.dubbing_model_string"
-          placeholder="选择具体使用的模型ID"
-          clearable
-          style="width: 100%"
-        >
-          <el-option
-            v-for="mId in availableDubbingSpecificModels"
-            :key="mId"
-            :label="mId"
-            :value="mId"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="提示词">
-        <el-select
-          v-model="settingsForm.prompt_id"
-          placeholder="选择一个提示词"
-          clearable
-          style="width: 100%"
-        >
-          <el-option
-            v-for="prompt in prompts"
-            :key="prompt.id"
-            :label="prompt.name"
-            :value="prompt.id"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="文件保存路径">
-        <div style="display: flex; gap: 8px; width: 100%">
-          <el-input v-model="settingsForm.save_path" placeholder="生成音频的保存目录" readonly />
-          <el-button @click="emit('browseSavePath')">浏览</el-button>
+          <el-select
+            v-model="settingsForm.dubbing_model_string"
+            placeholder="选择具体使用的模型ID"
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="mId in availableDubbingSpecificModels"
+              :key="mId"
+              :label="mId"
+              :value="mId"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="提示词">
+          <el-select
+            v-model="settingsForm.prompt_id"
+            placeholder="选择一个提示词"
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="prompt in prompts"
+              :key="prompt.id"
+              :label="prompt.name"
+              :value="prompt.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="文件保存路径">
+          <div style="display: flex; gap: 8px; width: 100%">
+            <el-input v-model="settingsForm.save_path" placeholder="生成音频的保存目录" readonly />
+            <el-button @click="emit('browseSavePath')">浏览</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button class="cancel-btn" @click="dialogVisible = false"
+            >取消</el-button
+          >
+          <el-button
+            class="submit-btn edit"
+            type="primary"
+            @click="emit('save')"
+            >保存</el-button
+          >
         </div>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button class="cancel-btn" @click="dialogVisible = false"
-          >取消</el-button
-        >
-        <el-button
-          class="submit-btn edit"
-          type="primary"
-          @click="emit('save')"
-          >保存</el-button
-        >
-      </div>
-    </template>
-  </el-dialog>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
 <style scoped>
@@ -204,3 +207,4 @@ const dialogVisible = computed({
   margin-left: 0;
 }
 </style>
+

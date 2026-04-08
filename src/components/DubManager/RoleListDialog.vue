@@ -34,95 +34,104 @@ const searchProxy = computed({
 </script>
 
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    title="角色库"
-    width="850px"
-    style="height: 600px"
-    append-to-body
-    class="custom-dialog"
-  >
-    <div class="role-list-header">
-      <el-input
-        v-model="searchProxy"
-        placeholder="搜索角色名称"
-        :prefix-icon="Search"
-        clearable
-        style="width: 240px"
-      />
-      <el-button type="primary" :icon="Plus" @click="emit('add')"
-        >新增角色</el-button
-      >
-    </div>
+  <div class="role-list-dialog-wrapper">
+    <el-dialog
+      :model-value="dialogVisible"
+      @update:modelValue="dialogVisible = $event"
+      title="角色库"
+      width="850px"
+      style="height: 600px"
+      append-to-body
+      class="custom-dialog"
+    >
+      <div class="role-list-header">
+        <el-input
+          v-model="searchProxy"
+          placeholder="搜索角色名称"
+          :prefix-icon="Search"
+          clearable
+          style="width: 240px"
+        />
+        <el-button type="primary" :icon="Plus" @click="emit('add')"
+          >新增角色</el-button
+        >
+      </div>
 
-    <el-scrollbar max-height="450px">
-      <div class="role-grid-container">
-        <div class="character-grid">
-          <div
-            v-for="role in filteredRoles"
-            :key="role.id"
-            class="character-card"
-          >
-            <div class="card-info" @click="emit('edit', role)">
-              <el-avatar
-                :size="40"
-                src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-              />
-              <div class="role-meta">
-                <div class="role-name">{{ role.name }}</div>
-                <div class="role-intro">
-                  {{ getDubberName(role.dubber_id) }}
+      <el-scrollbar max-height="450px">
+        <div class="role-grid-container">
+          <div class="character-grid">
+            <div
+              v-for="role in filteredRoles"
+              :key="role.id"
+              class="character-card"
+            >
+              <div class="card-info" @click="emit('edit', role)">
+                <el-avatar
+                  :size="40"
+                  src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                />
+                <div class="role-meta">
+                  <div class="role-name">{{ role.name }}</div>
+                  <div class="role-intro">
+                    {{ getDubberName(role.dubber_id) }}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="card-actions">
-                <el-tooltip v-if="role.dubber_id" :content="currentPlayingKey === 'role-' + role.id ? '停止试听' : '播放角色示范音频'" placement="top">
-                  <el-button
-                    class="trial-btn"
-                    link
-                    size="small"
-                    :icon="
-                      currentPlayingKey === 'role-' + role.id
-                        ? VideoPause
-                        : VideoPlay
-                    "
-                    @click.stop="emit('playAudio', getDubberAudio(role.dubber_id), 'role-' + role.id)"
-                    >{{
-                      currentPlayingKey === 'role-' + role.id
-                        ? '暂停'
-                        : '试听'
-                    }}</el-button
-                  >
-                </el-tooltip>
-                <div class="btn-group">
-                  <el-tooltip content="编辑角色基本信息" placement="top">
+              <div class="card-actions">
+                  <el-tooltip v-if="role.dubber_id" :content="currentPlayingKey === 'role-' + role.id ? '停止试听' : '播放角色示范音频'" placement="top">
                     <el-button
+                      class="trial-btn"
                       link
                       size="small"
-                      :icon="EditPen"
-                      @click="emit('edit', role)"
-                      >编辑</el-button
+                      :icon="
+                        currentPlayingKey === 'role-' + role.id
+                          ? VideoPause
+                          : VideoPlay
+                      "
+                      @click.stop="emit('playAudio', getDubberAudio(role.dubber_id), 'role-' + role.id)"
+                      >{{
+                        currentPlayingKey === 'role-' + role.id
+                          ? '暂停'
+                          : '试听'
+                      }}</el-button
                     >
                   </el-tooltip>
-                  <el-popconfirm
-                    title="确定移除该角色吗？"
-                    @confirm="emit('delete', role)"
-                  >
-                    <template #reference>
-                      <el-tooltip content="将该角色从库中删除" placement="top">
-                        <el-button link size="small" type="danger" :icon="Delete"
-                          >删除</el-button
-                        >
-                      </el-tooltip>
-                    </template>
-                  </el-popconfirm>
-                </div>
+                  <div class="btn-group">
+                    <el-tooltip content="编辑角色基本信息" placement="top">
+                      <el-button
+                        link
+                        size="small"
+                        :icon="EditPen"
+                        @click="emit('edit', role)"
+                        >编辑</el-button
+                      >
+                    </el-tooltip>
+                    <el-popconfirm
+                      title="确定移除该角色吗？"
+                      @confirm="emit('delete', role)"
+                    >
+                      <template #reference>
+                        <span class="popconfirm-trigger">
+                          <el-button
+                            link
+                            size="small"
+                            type="danger"
+                            :icon="Delete"
+                            title="将该角色从库中删除"
+                          >
+                            删除
+                          </el-button>
+                        </span>
+                      </template>
+                    </el-popconfirm>
+                  </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </el-scrollbar>
-  </el-dialog>
+      </el-scrollbar>
+    </el-dialog>
+  </div>
 </template>
 
 <style scoped>
@@ -201,6 +210,10 @@ const searchProxy = computed({
   gap: 4px;
 }
 
+.popconfirm-trigger {
+  display: inline-flex;
+}
+
 :deep(.custom-dialog) {
   border-radius: 12px;
 }
@@ -227,3 +240,4 @@ const searchProxy = computed({
   margin-bottom: 8px;
 }
 </style>
+
