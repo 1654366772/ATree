@@ -387,8 +387,8 @@ onMounted(() => {
       <el-form ref="formRef" :model="form" :rules="rules" label-position="top">
         <el-form-item label="模型类型" prop="type">
           <el-radio-group v-model="form.type">
-            <el-radio-button label="推理">推理模型</el-radio-button>
-            <el-radio-button label="配音">配音模型</el-radio-button>
+            <el-radio-button value="推理">推理模型</el-radio-button>
+            <el-radio-button value="配音">配音模型</el-radio-button>
           </el-radio-group>
         </el-form-item>
 

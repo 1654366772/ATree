@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { Setting, Download, Upload } from '@element-plus/icons-vue';
+import { Setting, Download, Upload, WarningFilled } from '@element-plus/icons-vue';
 import { initDB } from '../utils/db';
 
 const isExporting = ref(false);
