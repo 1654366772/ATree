@@ -324,11 +324,9 @@ ipcMain.handle('fs:delete', async (_event, { filePath }) => {
 ipcMain.handle('api:uploadFile', async (_event, { url, filePath, headers, directory, fileName }) => {
   try {
     const fileBuffer = fs.readFileSync(filePath);
-    const actualFileName = fileName || path.basename(filePath);
-
     // Electron 22+ 在 net.fetch 中支持 FormData
     const formData = new FormData();
-    formData.append('file', new Blob([fileBuffer]), actualFileName);
+    formData.append('file', new Blob([fileBuffer]), path.basename(filePath));
     if (directory) {
       formData.append('directory', directory);
     }
