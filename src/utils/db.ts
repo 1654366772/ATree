@@ -49,18 +49,18 @@ export interface Line {
   text: string; // 要合成的文本内容
   spk_audio_prompt?: string; // 参考音频路径
   output_path?: string; // 输出音频路径
-  emo_audio_prompt?: string; // 情感参考音频
+  emo_audio_prompt?: string; // 情绪参考音频
   gen_audio?: string; // 已生成的音频试听路径
-  emo_alpha?: number; // 情感强度/混合系数
-  use_emo_text?: boolean; // 是否使用根据text推断的情感
-  emo_text?: string; // 用于推断情感向量的文本
-  use_random?: boolean; // 是否启用随机情感向量抽取
+  emo_alpha?: number; // 情绪强度/混合系数
+  use_emo_text?: boolean; // 是否使用根据text推断的情绪
+  emo_text?: string; // 用于推断情绪向量的文本
+  use_random?: boolean; // 是否启用随机情绪向量抽取
   interval_silence?: number; // 段间的静音时长（毫秒）
   verbose?: boolean; // 是否输出详细日志
   max_text_tokens_per_segment?: number; // 单段合成的最大文本token数量
   quick_streaming_tokens?: number; // 快速流式返回的token数量
   stream_return?: boolean; // 是否开启流式返回
-  emo_control?: string; // 情感控制方式控制显示状态缓存
+  emo_control?: string; // 情绪控制方式控制显示状态缓存
   more_segment_before?: number; // 提前生成的段数
   do_sample?: boolean; // 是否采用采样
   top_p?: number; // 采样参数 top_p
@@ -80,7 +80,7 @@ export interface Line {
   calm?: number; // 平静
   status: number; // 状态：0未生成，1等待中，2生成中，3已完成，4生成失败
   audio_path?: string; // 音频路径（试听按钮关联）
-  local_emo_audio?: string; // 本地情感参考音频路径
+  local_emo_audio?: string; // 本地情绪参考音频路径
   error_msg?: string; // 记录生成失败的错误信息
   is_deleted: number; // 逻辑删除
   sort_order: number; // 排序权重
@@ -428,7 +428,7 @@ export async function initDB(): Promise<IDBPDatabase<AtreeDB>> {
           '男声',
           '女声',
           '童声',
-          '情感',
+          '情绪',
           '叙事',
           '青年',
           '老年',

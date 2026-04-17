@@ -66,7 +66,7 @@ const tableColumns = [
   },
   {
     key: 'emotion_control',
-    title: '情感控制',
+    title: '情绪控制',
     width: 320,
     align: 'center',
   },
@@ -183,7 +183,7 @@ const isAllSelected = computed(
               />
             </template>
 
-            <!-- 情感控制 -->
+            <!-- 情绪控制 -->
             <template v-else-if="column.key === 'emotion_control'">
               <div class="emotion-control-cell">
                 <!-- 第一行：方式选择 + 随机开关 + 高级设置 -->
@@ -197,11 +197,11 @@ const isAllSelected = computed(
                       emit('updateLine', rowData);
                     }"
                   >
-                    <el-option label="角色配音情感" value="0" />
-                    <el-option label="情感参考音频" value="1" />
-                    <el-option label="自定义情感向量" value="2" />
-                    <el-option label="文字情感描述" value="3" />
-                    <el-option label="自动生成情感向量" value="4" />
+                    <el-option label="角色配音情绪" value="0" />
+                    <el-option label="情绪参考音频" value="1" />
+                    <el-option label="自定义情绪向量" value="2" />
+                    <el-option label="情绪描述" value="3" />
+                    <el-option label="自动生成情绪向量" value="4" />
                   </el-select>
                   <el-tooltip v-if="['2','3','4'].includes(rowData.emo_control)" content="开启随机采样会降低音色的还原度。" placement="top">
                     <el-checkbox
@@ -310,7 +310,7 @@ const isAllSelected = computed(
 
                 <!-- 第二行：具体参数输入 (仅当非角色模式时) -->
                 <div v-if="!['0'].includes(rowData.emo_control)" class="control-body">
-                  <!-- 情感音频上传 (模式 1) -->
+                  <!-- 情绪音频上传 (模式 1) -->
                   <div v-if="rowData.emo_control === '1'" class="detail-item audio-upload-group">
                     <template v-if="!rowData.emo_audio_prompt && !emotionUploadingLines.has(rowData.id)">
                         <el-tooltip content="上传参考音频文件" placement="top">
@@ -361,12 +361,12 @@ const isAllSelected = computed(
                     </template>
                   </div>
 
-                  <!-- 情感向量弹出层 (模式 2) -->
+                  <!-- 情绪向量弹出层 (模式 2) -->
                   <div v-if="rowData.emo_control === '2'" class="detail-item">
                     <el-popover placement="bottom" :width="300" trigger="click">
                       <template #reference>
                         <el-button size="small" type="primary" plain class="full-width-btn">
-                          设置 8 维情感向量
+                          设置 8 维情绪向量
                         </el-button>
                       </template>
                       <div class="vec-popover-content">
@@ -398,7 +398,7 @@ const isAllSelected = computed(
                     </el-popover>
                   </div>
 
-                  <!-- 情感描述文本 (模式 3) -->
+                  <!-- 情绪描述文本 (模式 3) -->
                   <div v-if="rowData.emo_control === '3'" class="detail-item">
                     <el-input
                       v-model="rowData.emo_text"
@@ -411,7 +411,7 @@ const isAllSelected = computed(
 
                   <!-- 权重控制 (音频和文字模式共用) -->
                   <div v-if="['1','3','4'].includes(rowData.emo_control)" class="intensity-slider">
-                    <span class="intensity-label">情感权重</span>
+                    <span class="intensity-label">情绪权重</span>
                     <el-slider
                       v-model="rowData.emo_alpha"
                       :min="0"

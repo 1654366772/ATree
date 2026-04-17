@@ -46,10 +46,10 @@ const dialogVisible = computed({
       class="custom-dialog"
     >
       <el-form label-position="top">
-        <el-form-item label="推理模型供应商">
+        <el-form-item label="推理模型">
           <el-select
             v-model="settingsForm.inference_model_id"
-            placeholder="选择一个推理模型供应商"
+            placeholder="选择一个推理模型"
             clearable
             style="width: 100%"
             @change="emit('changeInferenceModel')"
@@ -63,7 +63,7 @@ const dialogVisible = computed({
           </el-select>
         </el-form-item>
         <el-form-item
-          label="推理具体模型"
+          label="模型ID"
           v-if="availableInferenceSpecificModels.length > 0"
         >
           <el-select
@@ -80,10 +80,10 @@ const dialogVisible = computed({
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="配音模型供应商">
+        <el-form-item label="配音模型">
           <el-select
             v-model="settingsForm.dubbing_model_id"
-            placeholder="选择一个配音模型供应商"
+            placeholder="选择一个配音模型"
             clearable
             style="width: 100%"
             @change="emit('changeDubbingModel')"

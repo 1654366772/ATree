@@ -277,8 +277,16 @@ const loadData = async () => {
       .sort((a, b) => a.sort_order - b.sort_order);
 
     if (chapters.value.length > 0) {
-      currentChapterId.value = chapters.value[0].id || null;
-      await loadChapterLines(currentChapterId.value!);
+      // 如果当前没有选中章节，或者已选中的章节在列表中找不到了，才默认选中第一个
+      const stillExists = chapters.value.some(c => c.id === currentChapterId.value);
+      if (!currentChapterId.value || !stillExists) {
+        currentChapterId.value = chapters.value[0].id || null;
+      }
+      
+      // 始终从数据库加载当前选中章节最新的台词数据
+      if (currentChapterId.value) {
+        await loadChapterLines(currentChapterId.value!);
+      }
     }
 
     // 处理角色
@@ -989,9 +997,9 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
     await handleUpdateLine(line);
 
     // 2. 前置校验
-    if (!article.value?.dubbing_model_id) throw new Error('文章未设置配音模型供应商');
+    if (!article.value?.dubbing_model_id) throw new Error('文章未设置配音模型');
     if (!article.value?.save_path) throw new Error('文章未设置文件保存路径');
-    if (!currentDubbingModel.value) throw new Error('当前配音模型未找到，请检查配置');
+    if (!currentDubbingModel.value) throw new Error('文章未设置配音模型');
 
     // 校验角色及发音人参考音频
     const role = roles.value.find(r => r.id === line.role_id);
@@ -1042,7 +1050,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
       }
     }
 
-    // 检查情感参考音频 (模式1)
+    // 检查情绪参考音频 (模式1)
     if (line.emo_control === '1' && line.emo_audio_prompt) {
       const emoCheckResult = await (window as any).ipcRenderer.invoke('api:checkFileExists', {
         url: baseUrl,
@@ -1062,16 +1070,16 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
             filePath: line.local_emo_audio,
             directory: `/emo_audio`
           });
-          if (!uploadResult.success) throw new Error('情感音频丢失且重传失败：' + uploadResult.error);
+          if (!uploadResult.success) throw new Error('情绪音频丢失且重传失败：' + uploadResult.error);
           
           const uploadedPath = uploadResult.data?.path || uploadResult.data?.url;
           if (uploadedPath) {
             line.emo_audio_prompt = uploadedPath;
           } else {
-            throw new Error('情感音频重传成功但未返回路径');
+            throw new Error('情绪音频重传成功但未返回路径');
           }
         } else {
-          throw new Error('远程情感音频不存在且本地缺少记录');
+          throw new Error('远程情绪音频不存在且本地缺少记录');
         }
       }
     }
@@ -1095,7 +1103,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
     switch (line.emo_control) {
       case '0': payload.emo_audio_prompt = role.remote_path; break;
       case '1': 
-        if (!line.emo_audio_prompt) throw new Error(`请先上传情感参考音频`);
+        if (!line.emo_audio_prompt) throw new Error(`请先上传情绪参考音频`);
         payload.emo_audio_prompt = line.emo_audio_prompt;
         payload.emo_alpha = line.emo_alpha;
         break;
@@ -1107,7 +1115,7 @@ const executeGeneration = async (line: Line, passedIndex?: number, chapterName?:
         ];
         break;
       case '3':
-        if (!line.emo_text) throw new Error(`请先输入文字情感描述`);
+        if (!line.emo_text) throw new Error(`请先输入情绪描述`);
         payload.use_random = !!line.use_random;
         payload.use_emo_text = true;
         payload.emo_text = line.emo_text;
@@ -1394,6 +1402,10 @@ const createEmptyLine = (orderValue: number): Line => {
 };
 
 const handleInsertFirst = async () => {
+  if (!currentChapterId.value) {
+    ElMessage.warning('请先选择一个章节');
+    return;
+  }
   try {
     const db = await initDB();
     // 取当前最小的 sort_order，减 1 作为新 sort_order，确保在最前面
@@ -1550,9 +1562,7 @@ const handleSaveSettings = async () => {
 };
 
 
-onMounted(() => {
-  loadData();
-});
+// onMounted 已在文件头部定义
 </script>
 
 <template>

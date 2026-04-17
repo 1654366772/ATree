@@ -29,45 +29,46 @@ const emit = defineEmits<{
         v-for="actor in actors"
         :key="actor.id"
         class="actor-card"
-        @click="emit('edit', actor)"
       >
-        <div class="card-header">
-          <span class="actor-id-name">{{ actor.name }}</span>
-          <el-button
-            circle
-            link
-            class="play-btn"
-            @click.stop="emit('playAudio', actor.audio_path, 'actor-' + actor.id)"
-            :class="{ 'is-playing': currentPlayingKey === 'actor-' + actor.id }"
-          >
-            <el-icon :size="20">
-              <component
-                :is="
-                  currentPlayingKey === 'actor-' + actor.id
-                    ? VideoPause
-                    : VideoPlay
-                "
-              />
-            </el-icon>
-          </el-button>
-        </div>
+        <div class="card-main" @click="emit('edit', actor)">
+          <div class="card-header">
+            <span class="actor-id-name">{{ actor.name }}</span>
+            <el-button
+              circle
+              link
+              class="play-btn"
+              @click.stop="emit('playAudio', actor.audio_path, 'actor-' + actor.id)"
+              :class="{ 'is-playing': currentPlayingKey === 'actor-' + actor.id }"
+            >
+              <el-icon :size="20">
+                <component
+                  :is="
+                    currentPlayingKey === 'actor-' + actor.id
+                      ? VideoPause
+                      : VideoPlay
+                  "
+                />
+              </el-icon>
+            </el-button>
+          </div>
 
-        <div class="tags-container">
-          <el-tag
-            v-for="tag in actor.tags.split(',').filter((t) => t)"
-            :key="tag"
-            size="small"
-            round
-            :style="getTagStyle(tag)"
-            effect="dark"
-            class="actor-tag"
-          >
-            {{ tag }}
-          </el-tag>
-        </div>
+          <div class="tags-container">
+            <el-tag
+              v-for="tag in actor.tags.split(',').filter((t) => t)"
+              :key="tag"
+              size="small"
+              round
+              :style="getTagStyle(tag)"
+              effect="dark"
+              class="actor-tag"
+            >
+              {{ tag }}
+            </el-tag>
+          </div>
 
-        <div class="audio-path-text" :title="actor.audio_path">
-          {{ actor.audio_path || '未设置音频文件' }}
+          <div class="audio-path-text" :title="actor.audio_path">
+            {{ actor.audio_path || '未设置音频文件' }}
+          </div>
         </div>
 
         <div class="card-footer">
@@ -115,7 +116,13 @@ const emit = defineEmits<{
   transition: all 0.2s ease;
   border: 1px solid transparent;
   min-height: 160px;
+}
+
+.card-main {
   cursor: pointer;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .actor-card:hover {

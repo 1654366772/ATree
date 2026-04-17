@@ -217,19 +217,20 @@ onMounted(() => {
           v-for="(prompt, index) in paginatedPrompts"
           :key="prompt.id"
           class="prompt-card"
-          @click="openEditDialog(prompt)"
         >
-          <div class="card-header">
-            <h3 class="prompt-name">{{ prompt.name }}</h3>
-          </div>
-          <div class="card-body">
-            <p class="prompt-content">{{ prompt.content }}</p>
+          <div class="card-main" @click="openEditDialog(prompt)">
+            <div class="card-header">
+              <h3 class="prompt-name">{{ prompt.name }}</h3>
+            </div>
+            <div class="card-body">
+              <p class="prompt-content">{{ prompt.content }}</p>
+            </div>
           </div>
           <div class="card-footer">
-            <el-button link type="primary" @click="openEditDialog(prompt)"
+            <el-button link type="primary" @click.stop="openEditDialog(prompt)"
               >编辑</el-button
             >
-            <el-button link type="danger" @click="confirmDelete(prompt)"
+            <el-button link type="danger" @click.stop="confirmDelete(prompt)"
               >删除</el-button
             >
           </div>
@@ -412,7 +413,13 @@ onMounted(() => {
     transform 0.2s,
     box-shadow 0.2s;
   border: 1px solid #e2e8f0;
+}
+
+.card-main {
   cursor: pointer;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .prompt-card:hover {

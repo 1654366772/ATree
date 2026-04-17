@@ -240,22 +240,21 @@ onMounted(() => {
           v-for="article in paginatedArticles"
           :key="article.id"
           class="article-card"
-          @click="handleDubbing(article)"
         >
-          <div class="card-content">
+          <div class="card-content" @click="handleDubbing(article)">
             <div class="article-title">{{ article.name }}</div>
             <div class="article-date">
               {{ formatDate(article.create_time) }}
             </div>
           </div>
           <div class="card-actions">
-            <el-button link type="info" @click="handleDubbing(article)"
+            <el-button link type="info" @click.stop="handleDubbing(article)"
               >配音</el-button
             >
-            <el-button link type="info" @click="openEditDialog(article)"
+            <el-button link type="info" @click.stop="openEditDialog(article)"
               >编辑</el-button
             >
-            <el-button link type="danger" @click="handleDelete(article)"
+            <el-button link type="danger" @click.stop="handleDelete(article)"
               >删除</el-button
             >
           </div>
@@ -402,7 +401,6 @@ onMounted(() => {
   transition:
     transform 0.2s,
     box-shadow 0.2s;
-  cursor: pointer;
 }
 
 .article-card:hover {
@@ -412,6 +410,8 @@ onMounted(() => {
 
 .card-content {
   margin-bottom: 16px;
+  cursor: pointer;
+  flex: 1;
 }
 
 .article-title {

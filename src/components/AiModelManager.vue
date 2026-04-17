@@ -322,29 +322,30 @@ onMounted(() => {
           v-for="(model, index) in paginatedModels"
           :key="model.id"
           class="model-card"
-          @click="openEditDialog(model)"
         >
-          <div class="card-header">
-            <div class="header-top">
-              <h3 class="model-name">
-                {{ model.name }}
-              </h3>
-              <el-tag
-                size="small"
-                :type="model.type === '推理' ? 'primary' : 'success'"
-              >
-                {{ model.type || '推理' }}
-              </el-tag>
+          <div class="card-main" @click="openEditDialog(model)">
+            <div class="card-header">
+              <div class="header-top">
+                <h3 class="model-name">
+                  {{ model.name }}
+                </h3>
+                <el-tag
+                  size="small"
+                  :type="model.type === '推理' ? 'primary' : 'success'"
+                >
+                  {{ model.type || '推理' }}
+                </el-tag>
+              </div>
+            </div>
+            <div class="card-body">
+              <p class="model-info">{{ displayUrlAndId(model) }}</p>
             </div>
           </div>
-          <div class="card-body">
-            <p class="model-info">{{ displayUrlAndId(model) }}</p>
-          </div>
           <div class="card-footer">
-            <el-button link type="info" @click="openEditDialog(model)"
+            <el-button link type="info" @click.stop="openEditDialog(model)"
               >编辑</el-button
             >
-            <el-button link type="danger" @click="confirmDelete(model)"
+            <el-button link type="danger" @click.stop="confirmDelete(model)"
               >删除</el-button
             >
           </div>
@@ -568,7 +569,13 @@ onMounted(() => {
     transform 0.2s,
     box-shadow 0.2s;
   border: 1px solid transparent;
+}
+
+.card-main {
   cursor: pointer;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .model-card:hover {
