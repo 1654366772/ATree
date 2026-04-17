@@ -56,6 +56,7 @@ npm run build
 
 - 脚手架：[electron-vite-vue](https://github.com/electron-vite/electron-vite-vue)
 - 语音生成：[IndexTTS2](https://github.com/index-tts/index-tts)
+- 解析台词提示词：[音谷 - AI 多角色多情绪配音平台](https://github.com/xcLee001/SonicVale)
 
 
 **ATree** 整体代码基于 **非商业性开源协议** 发布。
