@@ -1,6 +1,7 @@
 # ATree 🌳
 
 ATree 是一款基于 Electron + Vue 3 开发的桌面端应用程序，专注于提供高效的文章管理、AI 模型管理以及智能配音与连载台本处理相关的集成环境。
+详细使用手册(https://pcne36pdbf1o.feishu.cn/wiki/DYD5wQYCfibY5mkEmaIc9IWun6g?from=from_copylink)
 
 ## ✨ 核心特性
 
