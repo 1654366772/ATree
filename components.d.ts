@@ -77,4 +77,7 @@ declare module 'vue' {
     TagManagerDialog: typeof import('./src/components/VoiceActorManager/TagManagerDialog.vue')['default']
     VoiceActorManager: typeof import('./src/components/VoiceActorManager.vue')['default']
   }
+  export interface GlobalDirectives {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }

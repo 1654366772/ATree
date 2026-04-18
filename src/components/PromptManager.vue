@@ -15,6 +15,7 @@ interface Prompt {
 
 // 状态
 const prompts = ref<Prompt[]>([]);
+const loading = ref(false);
 const searchQuery = ref('');
 const currentPage = ref(1);
 const pageSize = ref(Number(localStorage.getItem('prompt_page_size')) || 10);
@@ -86,12 +87,15 @@ const paginatedPrompts = computed(() => {
 
 // 方法
 const loadPrompts = async () => {
+  loading.value = true;
   try {
     const db = await initDB();
     const allPrompts = await db.getAll('prompt');
     prompts.value = allPrompts;
   } catch (error) {
     ElMessage.error('加载提示词列表失败：' + error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -189,7 +193,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="prompt-container">
+  <div class="prompt-container" v-loading="loading">
     <!-- Header -->
     <div class="header">
       <el-button type="primary" class="add-btn" @click="openAddDialog">

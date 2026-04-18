@@ -40,6 +40,7 @@ const lines = ref<Line[]>([]);
 const currentChapterId = ref<number | null>(null);
 const chapterSearchQuery = ref('');
 const isAutoPlay = ref(false);
+const loading = ref(false);
 const isParsing = computed(() => globalState.isChapterParsing(currentChapterId.value));
 const isSidebarCollapsed = ref(false);
 
@@ -246,6 +247,7 @@ const toggleSelection = (id: number) => {
 
 const loadData = async () => {
   if (!articleId) return;
+  loading.value = true;
   try {
     const db = await initDB();
 
@@ -307,10 +309,13 @@ const loadData = async () => {
     allPrompts.value = (promptsList || []).filter((p) => p.is_deleted === 0);
   } catch (error) {
     ElMessage.error('加载数据失败：' + error);
+  } finally {
+    loading.value = false;
   }
 };
 
 const loadChapterLines = async (chapterId: number) => {
+  loading.value = true;
   try {
     const db = await initDB();
     const allLines = await db.getAllFromIndex(
@@ -333,6 +338,8 @@ const loadChapterLines = async (chapterId: number) => {
     });
   } catch (error) {
     ElMessage.error('加载数据失败：' + error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -771,8 +778,8 @@ const handleParseScript = async () => {
 
     // 3. 构造请求信息
     // 要求 AI 返回 JSON 格式
-    const systemInstruction = `${prompt.content}\n\n请务必以 JSON 数组格式返回解析结果，数组项格式为：{"role": "角色名", "text": "台词内容"}。`;
-    const userMessage = `请解析以下小说章节内容：\n\n${targetChapterContent}`;
+    const systemInstruction = `${prompt.content}\n\n`;
+    const userMessage = `请解析以下小说章节内容：\n\n${targetChapterContent}\n\n角色列表：\n${roles.value.map(role => role.name).join('\n')}`;
 
     // 解析提示词中配置的模型参数
     let modelParams = {};
@@ -1566,7 +1573,7 @@ const handleSaveSettings = async () => {
 </script>
 
 <template>
-  <div class="dub-manager">
+  <div class="dub-manager" v-loading="loading">
     <ChapterSidebar
       :collapsed="isSidebarCollapsed"
       :search-query="chapterSearchQuery"

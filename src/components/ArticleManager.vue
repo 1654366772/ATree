@@ -16,6 +16,7 @@ interface Article {
 
 // 状态
 const articles = ref<Article[]>([]);
+const loading = ref(false);
 const searchQuery = ref('');
 const currentPage = ref(1);
 const pageSize = ref(Number(localStorage.getItem('article_page_size')) || 10);
@@ -97,12 +98,15 @@ const formatDate = (date: Date) => {
 };
 
 const loadArticles = async () => {
+  loading.value = true;
   try {
     const db = await initDB();
     const allArticles = await db.getAll('article');
     articles.value = allArticles;
   } catch (error) {
     ElMessage.error('加载文章列表失败：' + error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -212,7 +216,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="article-container">
+  <div class="article-container" v-loading="loading">
     <!-- 头部 -->
     <div class="header">
       <el-button type="primary" class="add-btn" @click="openAddDialog">

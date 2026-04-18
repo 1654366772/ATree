@@ -15,6 +15,7 @@ interface Dubber extends VoiceActor {
 
 // 状态
 const dubbers = ref<Dubber[]>([]);
+const loading = ref(false);
 const tags = ref<Tag[]>([]);
 const searchQuery = ref('');
 const selectedTags = ref<string[]>([]);
@@ -182,6 +183,7 @@ watch(dialogVisible, (val) => {
 
 // 数据加载
 const loadData = async () => {
+  loading.value = true;
   try {
     const db = await initDB();
     const [allDubbers, allTags] = await Promise.all([
@@ -195,6 +197,8 @@ const loadData = async () => {
     tags.value = allTags;
   } catch (error) {
     ElMessage.error('加载数据失败：' + error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -372,7 +376,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="voice-actor-manager">
+  <div class="voice-actor-manager" v-loading="loading">
     <HeaderToolbar
       :selected-tags="selectedTags"
       :voice-tags="voiceTags"

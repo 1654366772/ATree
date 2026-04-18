@@ -18,12 +18,14 @@ interface AiModel {
 
 // 状态
 const models = ref<AiModel[]>([]);
+const loading = ref(false);
 const searchQuery = ref('');
 const selectedType = ref('');
 const currentPage = ref(1);
 const pageSize = ref(Number(localStorage.getItem('ai_model_page_size')) || 10);
 const formRef = ref<any>(null);
 const showApiKey = ref(false);
+const isTesting = ref(false);
 
 // 弹窗状态
 const dialogVisible = ref(false);
@@ -94,12 +96,15 @@ const paginatedModels = computed(() => {
 
 // 方法
 const loadModels = async () => {
+  loading.value = true;
   try {
     const db = await initDB();
     const allModels = await db.getAll('ai_model');
     models.value = allModels;
   } catch (error) {
     ElMessage.error('加载模型列表失败：' + error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -146,54 +151,58 @@ const handleTestConnection = async () => {
     ElMessage.warning('请先填写 Base URL');
     return;
   }
-
-  // 推理模型需要 API Key 和模型 ID
-  if (form.value.type === '推理') {
-    if (!form.value.api_key || !form.value.model_ids) {
-      ElMessage.warning('请先填写 API Key 和模型 ID');
-      return;
-    }
-
-    // 使用逗号分隔列表中的第一个模型 ID
-    const firstModelId = form.value.model_ids.split(/[，,]/)[0].trim();
-    if (!firstModelId) {
-      ElMessage.warning('请提供有效的模型 ID');
-      return;
-    }
-
-    const config = {
-      ...form.value,
-      specific_model_id: firstModelId,
-    };
-
-    try {
-      ElMessage.info('正在测试连接...');
-      // 直接创建实例，因为我们要测试表单数据，而不是数据库记录
-      const aiService = new AIService(config);
-
-      await aiService.chat([{ role: 'user', content: 'Hello' }]);
-      ElMessage.success('推理模型连接测试成功！');
-    } catch (error: any) {
-      ElMessage.error(`推理模型连接失败: ${error.message}`);
-    }
-  } else if (form.value.type === '配音') {
-    try {
-      ElMessage.info('正在测试连接...');
-      // 调用后台 api:heartbeat
-      const res = await (window as any).ipcRenderer.invoke('api:heartbeat', {
-        url: form.value.base_url,
-        retries: 2,
-        interval: 1000,
-      });
-
-      if (res.success) {
-        ElMessage.success('配音模型连接成功！');
-      } else {
-        ElMessage.error(`配音模型连接失败: ${res.error}`);
+  
+  isTesting.value = true;
+  try {
+    if (form.value.type === '推理') {
+      if (!form.value.api_key || !form.value.model_ids) {
+        ElMessage.warning('请先填写 API Key 和模型 ID');
+        return;
       }
-    } catch (error: any) {
-      ElMessage.error(`连接出现错误: ${error.message}`);
+
+      // 使用逗号分隔列表中的第一个模型 ID
+      const firstModelId = form.value.model_ids.split(/[，,]/)[0].trim();
+      if (!firstModelId) {
+        ElMessage.warning('请提供有效的模型 ID');
+        return;
+      }
+
+      const config = {
+        ...form.value,
+        specific_model_id: firstModelId,
+      };
+
+      try {
+        ElMessage.info('正在测试连接...');
+        // 直接创建实例，因为我们要测试表单数据，而不是数据库记录
+        const aiService = new AIService(config);
+
+        await aiService.chat([{ role: 'user', content: 'Hello' }]);
+        ElMessage.success('推理模型连接测试成功！');
+      } catch (error: any) {
+        ElMessage.error(`推理模型连接失败: ${error.message}`);
+      }
+    } else if (form.value.type === '配音') {
+      try {
+        ElMessage.info('正在测试连接...');
+        // 调用后台 api:heartbeat
+        const res = await (window as any).ipcRenderer.invoke('api:heartbeat', {
+          url: form.value.base_url,
+          retries: 2,
+          interval: 1000,
+        });
+
+        if (res.success) {
+          ElMessage.success('配音模型连接成功！');
+        } else {
+          ElMessage.error(`配音模型连接失败: ${res.error}`);
+        }
+      } catch (error: any) {
+        ElMessage.error(`连接出现错误: ${error.message}`);
+      }
     }
+  } finally {
+    isTesting.value = false;
   }
 };
 
@@ -281,7 +290,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="model-container">
+  <div class="model-container" v-loading="loading">
     <!-- 头部 -->
     <div class="header">
       <el-button type="primary" class="add-btn" @click="openAddDialog">
@@ -427,7 +436,7 @@ onMounted(() => {
         </el-form-item>
 
         <div class="form-links">
-          <el-button link type="primary" @click="handleTestConnection"
+          <el-button link type="primary" @click="handleTestConnection" :loading="isTesting"
             >测试连接</el-button
           >
         </div>
